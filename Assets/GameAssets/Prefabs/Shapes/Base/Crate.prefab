@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4402151197807052111}
   - component: {fileID: 3917256313269131883}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Inner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,9 +97,9 @@ GameObject:
   - component: {fileID: 1220445417950124710}
   - component: {fileID: 6178629200500825527}
   - component: {fileID: 4584567678883051900}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Crate
-  m_TagString: Untagged
+  m_TagString: PlayShape
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 4207015233905435617}
   - component: {fileID: 8317261326098529750}
   - component: {fileID: 4221733594435640503}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Circle
-  m_TagString: Untagged
+  m_TagString: PlayShape
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -172,7 +172,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8815660224695290335}
   - component: {fileID: 321657979391363619}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Inner
   m_TagString: Untagged
   m_Icon: {fileID: 0}

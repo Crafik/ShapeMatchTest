@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 442354648120571556}
   - component: {fileID: 5436371858405954681}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Inner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,9 +97,9 @@ GameObject:
   - component: {fileID: 4680739634199293970}
   - component: {fileID: -7290144598392073117}
   - component: {fileID: 6218652938634549971}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Triangle
-  m_TagString: Untagged
+  m_TagString: PlayShape
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

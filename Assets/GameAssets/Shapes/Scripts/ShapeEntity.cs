@@ -25,11 +25,27 @@ public class ShapeEntity : MonoBehaviour
         Instantiate(GameManager.Instance.GemsList[(int)gem], this.transform);
         this.transform.GetChild(0).GetComponent<SpriteRenderer>().color = GameManager.Instance.ColorsList[(int)color];
 
+        _isActive = false;
+
         // here be mutators
     }
 
-    void Update()
+    public void ChangeState(bool activate)
     {
-        
+        _isActive = activate;
+        if (_isActive)
+        {
+            this.gameObject.GetComponent<SpriteRenderer>().color = GameManager.Instance.activeColor;
+        }
+        else
+        {
+            this.gameObject.GetComponent<SpriteRenderer>().color = GameManager.Instance.inactiveColor;
+        }
+    }
+
+    public void GetClicked()
+    {
+        Debug.Log(shape + " - " + gem + " - " + color + " got clicked!");
+        Destroy(this.gameObject);
     }
 }
