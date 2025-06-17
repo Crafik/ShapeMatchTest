@@ -70,18 +70,15 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         // assembling the bag
-        // to be redone
         _bag = new List<ShapeEntityTemplate>();
         for (int i = 0; i < ShapesList.Count; ++i)
         {
-            for (int j = 0; j < GemsList.Count; ++j)
+            for (int k = 0; k < 12; ++k)
             {
-                for (int k = 0; k < ColorsList.Count; ++k)
-                {
-                    _bag.Add(new ShapeEntityTemplate((Shapes)i, (Gems)j, (Colors)k));
-                    _bag.Add(new ShapeEntityTemplate((Shapes)i, (Gems)j, (Colors)k));
-                    _bag.Add(new ShapeEntityTemplate((Shapes)i, (Gems)j, (Colors)k));
-                }
+                ShapeEntityTemplate sh = new ShapeEntityTemplate((Shapes)i, (Gems)Random.Range(0, GemsList.Count), (Colors)Random.Range(0, ColorsList.Count));
+                _bag.Add(sh);
+                _bag.Add(sh);
+                _bag.Add(sh);
             }
         }
         _bag = ShuffleList(_bag);
