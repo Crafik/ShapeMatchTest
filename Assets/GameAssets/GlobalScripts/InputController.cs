@@ -7,6 +7,8 @@ public class InputController
 
     private int _shapesLayerMask;
 
+    private bool _isEnabled;
+
     public InputController()
     {
         _shapesLayerMask = 1 << LayerMask.NameToLayer("Shapes");
@@ -14,11 +16,13 @@ public class InputController
         {
             // no time to throw exception here
         }
-        
+
         _controls = new Controls();
         _controls.Enable();
 
         _controls.Touch.PrimaryTouch.performed += OnPrimaryTouch;
+
+        _isEnabled = false;
     }
 
     ~InputController()
@@ -28,19 +32,24 @@ public class InputController
         _controls.Disable();
     }
 
+    public void EnableTouch(bool enable)
+    {
+        _isEnabled = enable;
+    }
+
     void OnPrimaryTouch(InputAction.CallbackContext ctx)
     {
-        Vector2 pos = Camera.main.ScreenToWorldPoint(ctx.ReadValue<Vector2>());
-        Debug.Log("OnPrimaryTouch");
-
-        RaycastHit2D hit = Physics2D.Raycast(pos, Vector2.zero, Mathf.Infinity, _shapesLayerMask);
-        if (hit.collider != null)
+        if (_isEnabled)
         {
-            Debug.Log("If hit != null");
-            if (hit.collider.CompareTag("PlayShape"))
+            Vector2 pos = Camera.main.ScreenToWorldPoint(ctx.ReadValue<Vector2>());
+
+            RaycastHit2D hit = Physics2D.Raycast(pos, Vector2.zero, Mathf.Infinity, _shapesLayerMask);
+            if (hit.collider != null)
             {
-                Debug.Log("If hit is PlayShape");
-                hit.collider.gameObject.GetComponent<ShapeEntity>().GetClicked();
+                if (hit.collider.CompareTag("PlayShape"))
+                {
+                    hit.collider.gameObject.GetComponent<ShapeEntity>().GetClicked();
+                }
             }
         }
     }

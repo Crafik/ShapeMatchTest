@@ -5,25 +5,16 @@ using UnityEngine;
 
 public class ShapeEntity : MonoBehaviour
 {
-
-    [HideInInspector] public Shapes shape { get; private set; }
-    [HideInInspector] public Gems gem { get; private set; }
-    [HideInInspector] public Colors color { get; private set; }
-    [HideInInspector] public Mutators mutator { get; private set; }
-
-    private GameObject _shapeObj;
+    public ShapeEntityTemplate entity;
 
     private bool _isActive;
 
-    public void Init(Shapes sh, Gems g, Colors c, Mutators m = Mutators.None)
+    public void Init(ShapeEntityTemplate template)
     {
-        shape = sh;
-        gem = g;
-        color = c;
-        mutator = m;
+        entity = template;
 
-        Instantiate(GameManager.Instance.GemsList[(int)gem], this.transform);
-        this.transform.GetChild(0).GetComponent<SpriteRenderer>().color = GameManager.Instance.ColorsList[(int)color];
+        Instantiate(GameManager.Instance.GemsList[(int)entity.gem], this.transform);
+        this.transform.GetChild(0).GetComponent<SpriteRenderer>().color = GameManager.Instance.ColorsList[(int)entity.color];
 
         _isActive = false;
 
@@ -45,7 +36,9 @@ public class ShapeEntity : MonoBehaviour
 
     public void GetClicked()
     {
-        Debug.Log(shape + " - " + gem + " - " + color + " got clicked!");
-        Destroy(this.gameObject);
+        if (_isActive)
+        {
+            Destroy(this.gameObject);
+        }
     }
 }

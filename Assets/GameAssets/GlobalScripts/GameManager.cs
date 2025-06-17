@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
-struct ShapeEntityTemplate
+public struct ShapeEntityTemplate
 {
     public Shapes shape;
     public Gems gem;
@@ -23,9 +24,14 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance; // Singleton
 
     private InputController _input;
+    private UIManager _ui;
 
     [Header(" Links ")]
     [SerializeField] private List<GameObject> _spawnPoints;
+
+    [Space(5)]
+    [SerializeField] private TextMeshProUGUI _fieldCounter;
+    [SerializeField] private TextMeshProUGUI _bagCounter;
 
     [Space(10)]
     [Header(" Public data ")]
@@ -52,6 +58,8 @@ public class GameManager : MonoBehaviour
     private int _fieldCount;
     private int _scoreCount;
 
+    private bool _isAssembling;
+
 
     void Awake()
     {
@@ -65,12 +73,16 @@ public class GameManager : MonoBehaviour
         }
 
         _input = new InputController();
+        _ui = new UIManager(_fieldCounter, _bagCounter);
+
+        _isAssembling = false;
     }
 
     void Start()
     {
         // assembling the bag
         _bag = new List<ShapeEntityTemplate>();
+        _inGame = new List<GameObject>();
         for (int i = 0; i < ShapesList.Count; ++i)
         {
             for (int k = 0; k < 12; ++k)
@@ -83,21 +95,45 @@ public class GameManager : MonoBehaviour
         }
         _bag = ShuffleList(_bag);
         _totalCount = _bag.Count;
+        _fieldCount = 0;
+        _ui.RefreshCounters(_fieldCount, _bag.Count);
 
         StartCoroutine(ShapesSpawning());
     }
 
     private IEnumerator ShapesSpawning()
     {
+        _isAssembling = true;
+        _input.EnableTouch(false);
         _fieldCount = 0;
-        while (_fieldCount < 84) // kinda magic number
+        while (_fieldCount < 84 & _fieldCount < _totalCount) // kinda magic number
         {
-            // Vector3 spawnPos = new Vector3(_areaCenter.x + Random.Range(-_areaWidthHalf, _areaWidthHalf), _areaCenter.y + Random.Range(-_areaHeightHalf, _areaHeightHalf));
-            var s = Instantiate(ShapesList[(int)_bag[0].shape], _spawnPoints[Random.Range(0, _spawnPoints.Count)].transform.position, Quaternion.identity);
-            s.GetComponent<ShapeEntity>().Init(_bag[0].shape, _bag[0].gem, _bag[0].color);
+            GameObject s = Instantiate(ShapesList[(int)_bag[0].shape], _spawnPoints[Random.Range(0, _spawnPoints.Count)].transform.position, Quaternion.identity);
+            _inGame.Add(s);
+            s.GetComponent<ShapeEntity>().Init(_bag[0]);
             yield return new WaitForSeconds(0.25f);
             _fieldCount += 1;
             _bag.RemoveAt(0);
+            _ui.RefreshCounters(_fieldCount, _bag.Count);
+        }
+        _input.EnableTouch(true);
+        _isAssembling = false;
+    }
+
+    public void RefreshField()
+    {
+        if (!_isAssembling)
+        {
+            while (_inGame.Count > 0)
+            {
+                _bag.Add(_inGame[0].GetComponent<ShapeEntity>().entity);
+                Destroy(_inGame[0]);
+                _inGame.RemoveAt(0);
+            }
+            _bag = ShuffleList(_bag);
+            _fieldCount = 0;
+            _ui.RefreshCounters(_fieldCount, _bag.Count);
+            StartCoroutine(ShapesSpawning());
         }
     }
 
