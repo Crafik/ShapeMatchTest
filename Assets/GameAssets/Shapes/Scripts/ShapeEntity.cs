@@ -45,17 +45,20 @@ public class ShapeEntity : MonoBehaviour
 
     public void GetClicked()
     {
-        if (_isActive)
+        if (GameManager.Instance.isActive)
         {
-            if (GameManager.Instance.scoreCount < 7)
+            if (_isActive)
             {
-                _collider.enabled = false;
-                _isActive = false;
+                if (GameManager.Instance.scoreCount < 7)
+                {
+                    _collider.enabled = false;
+                    _isActive = false;
 
-                Vector3 pos = GameManager.Instance.scorePlaces[GameManager.Instance.scoreCount].transform.position;
+                    Vector3 pos = GameManager.Instance.scorePlaces[GameManager.Instance.scoreCount].transform.position;
 
-                GameManager.Instance.ShapeClicked(this.gameObject);
-                StartCoroutine(FlyingCoroutine(pos));
+                    GameManager.Instance.ShapeClicked(this.gameObject);
+                    StartCoroutine(FlyingCoroutine(pos));
+                }
             }
         }
     }

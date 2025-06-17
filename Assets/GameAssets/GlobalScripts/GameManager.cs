@@ -35,6 +35,8 @@ public class GameManager : MonoBehaviour
 
     [Space(5)]
     [SerializeField] private GameObject _canvas;
+    [SerializeField] private GameObject _startButton;
+    [SerializeField] private GameObject _mainLabel;
 
     [Space(10)]
     [Header(" Public data ")]
@@ -61,7 +63,9 @@ public class GameManager : MonoBehaviour
     private int _totalCount;
     [HideInInspector] public int scoreCount;
 
-    private bool _isActive;
+    public bool isActive;
+    public bool isGameStarted;
+    private bool _isNotFirstTime;
 
 
     void Awake()
@@ -76,39 +80,62 @@ public class GameManager : MonoBehaviour
         }
 
         _input = new InputController();
-        _ui = new UIManager(_fieldCounter, _bagCounter, scorePlaces);
+        _ui = new UIManager(_fieldCounter, _bagCounter, _startButton, _mainLabel, scorePlaces);
 
-        _isActive = false;
+        isActive = false;
+        isGameStarted = false;
+        _isNotFirstTime = false;
         scoreCount = 0;
 
         _inScore = new List<GameObject>();
     }
 
-    void Start()
+    public void StartGame()
     {
-        // assembling the bag
-        _bag = new List<ShapeEntityTemplate>();
-        _inGame = new List<GameObject>();
-        for (int i = 0; i < ShapesList.Count; ++i)
+        if (_isNotFirstTime)
         {
-            for (int k = 0; k < 12; ++k)
+            while (_inGame.Count > 0)
             {
-                ShapeEntityTemplate sh = new ShapeEntityTemplate((Shapes)i, (Gems)Random.Range(0, GemsList.Count), (Colors)Random.Range(0, ColorsList.Count));
-                _bag.Add(sh);
-                _bag.Add(sh);
-                _bag.Add(sh);
+                Destroy(_inGame[0]);
+                _inGame.RemoveAt(0);
             }
+            while (_inScore.Count > 0)
+            {
+                Destroy(_inScore[0]);
+                _inScore.RemoveAt(0);
+            }
+            _ui.RefreshScoreBar(_inScore);
+            scoreCount = 0;
         }
-        _bag = ShuffleList(_bag);
-        _totalCount = _bag.Count;
-        _ui.RefreshCounters(_inGame.Count, _bag.Count);
+        if (!isGameStarted)
+        {
+            _ui.PlayButtonAnim(false);
+            _ui.PlayLabelAnim(false);
+            _bag = new List<ShapeEntityTemplate>();
+            _inGame = new List<GameObject>();
+            for (int i = 0; i < ShapesList.Count; ++i)
+            {
+                for (int k = 0; k < 12; ++k)
+                {
+                    ShapeEntityTemplate sh = new ShapeEntityTemplate((Shapes)i, (Gems)Random.Range(0, GemsList.Count), (Colors)Random.Range(0, ColorsList.Count));
+                    _bag.Add(sh);
+                    _bag.Add(sh);
+                    _bag.Add(sh);
+                }
+            }
+            _bag = ShuffleList(_bag);
+            _totalCount = _bag.Count;
+            _ui.RefreshCounters(_inGame.Count, _bag.Count);
 
-        StartCoroutine(ShapesSpawning());
+            StartCoroutine(ShapesSpawning());
+            isGameStarted = true;
+            _isNotFirstTime = true;
+        }
     }
 
     private IEnumerator ShapesSpawning()
     {
-        _isActive = true;
+        isActive = false;
         _input.EnableTouch(false);
         while (_inGame.Count < 84 & _inGame.Count < _totalCount) // kinda magic number
         {
@@ -120,12 +147,12 @@ public class GameManager : MonoBehaviour
             _ui.RefreshCounters(_inGame.Count, _bag.Count);
         }
         _input.EnableTouch(true);
-        _isActive = false;
+        isActive = true;
     }
 
     public void RefreshField()
     {
-        if (!_isActive)
+        if (isActive)
         {
             while (_inGame.Count > 0)
             {
@@ -154,37 +181,69 @@ public class GameManager : MonoBehaviour
     public void ShapeClicked(GameObject shape)
     {
         _inGame.Remove(shape);
+        _totalCount -= 1;
         scoreCount += 1;
         _ui.RefreshCounters(_inGame.Count, _bag.Count);
         shape.transform.SetParent(_canvas.transform);
+
+        if (_inGame.Count < 60 && _inGame.Count != _totalCount)
+        {
+            StartCoroutine(ShapesSpawning());
+        }
     }
 
     public void AddToScore(GameObject shape)
     {
-        int matchCounter = 0;
-        List<GameObject> matches = new List<GameObject>();
-        foreach (GameObject s in _inScore)
+        _inScore.Add(shape);
+        FindMatches();
+        _ui.RefreshScoreBar(_inScore);
+
+        if (_inScore.Count == 7)
         {
-            ShapeEntityTemplate sT = s.GetComponent<ShapeEntity>().entity;
-            ShapeEntityTemplate shapeT = shape.GetComponent<ShapeEntity>().entity;
-            if (sT.shape == shapeT.shape && sT.gem == shapeT.gem && sT.color == shapeT.color)
+            isActive = false;
+            isGameStarted = false;
+            _ui.PlayLabelAnim(true);
+            _ui.SetLabelText("Defeat!");
+            _ui.PlayButtonAnim(true);
+        }
+    }
+
+    private void FindMatches()
+    {
+        List<int> matches = new List<int>();
+
+        ShapeEntityTemplate matchTo = _inScore[_inScore.Count - 1].GetComponent<ShapeEntity>().entity;
+        for (int i = 0; i < _inScore.Count - 1; ++i)
+        {
+            ShapeEntityTemplate matchWith = _inScore[i].GetComponent<ShapeEntity>().entity;
+            if (matchTo.shape == matchWith.shape)
             {
-                matchCounter += 1;
-                matches.Add(s);
-                if (matchCounter > 1) // 2 matches for 3 of the same
+                if (matchTo.gem == matchWith.gem)
                 {
-                    matches.Add(shape);
-                    _inScore.Add(shape);
-                    foreach (GameObject match in matches)
+                    if (matchTo.color == matchWith.color)
                     {
-                        _inScore.Remove(match);
-                        Destroy(match);
+                        matches.Add(i);
                     }
-                    scoreCount -= 3;
-                    break;
                 }
             }
         }
-        _ui.AddToScoreBar(_inScore);
+        matches.Add(_inScore.Count - 1);
+        if (matches.Count > 2)
+        {
+            for (int i = matches.Count - 1; i > -1; --i)
+            {
+                Destroy(_inScore[matches[i]]);
+                _inScore.RemoveAt(matches[i]);
+                scoreCount -= 1;
+            }
+        }
+        if (_inScore.Count == 0 && _totalCount == 0)
+        {
+            isActive = false;
+            isGameStarted = false;
+            _ui.PlayLabelAnim(true);
+            _ui.SetLabelText("Victory!");
+            _ui.PlayButtonAnim(true);
+        }
     }
 }
