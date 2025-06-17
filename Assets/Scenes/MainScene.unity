@@ -1034,8 +1034,8 @@ Canvas:
   m_GameObject: {fileID: 726013876}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_RenderMode: 1
+  m_Camera: {fileID: 519420031}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -1046,7 +1046,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!224 &726013880
 RectTransform:
@@ -1385,6 +1385,7 @@ MonoBehaviour:
   - {fileID: 2081396001}
   _fieldCounter: {fileID: 1599440674}
   _bagCounter: {fileID: 40077224}
+  _canvas: {fileID: 726013876}
   ShapesList:
   - {fileID: 7429916797415482449, guid: 85bf6c7a6412ac348943652c2baffc9e, type: 3}
   - {fileID: 3230175742071407619, guid: a450b1ad28a32c24092cfea550d85f71, type: 3}
@@ -1403,8 +1404,16 @@ MonoBehaviour:
   - {r: 1, g: 1, b: 1, a: 1}
   inactiveColor: {r: 0.4509804, g: 0.4509804, b: 0.4509804, a: 1}
   activeColor: {r: 1, g: 0.6136045, b: 0, a: 1}
-  scorePlaces: []
+  scorePlaces:
+  - {fileID: 1038573712}
+  - {fileID: 1032982780}
+  - {fileID: 1352280715}
+  - {fileID: 279132900}
+  - {fileID: 1063776844}
+  - {fileID: 789077425}
+  - {fileID: 1864760192}
   _float: 0
+  scoreCount: 0
 --- !u!1 &1032982780
 GameObject:
   m_ObjectHideFlags: 0
@@ -2542,7 +2551,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.073196515}
+  m_Offset: {x: 0, y: -0.049281448}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -2553,7 +2562,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 0.85360694}
+  m_Size: {x: 1, y: 0.9014371}
   m_EdgeRadius: 0
 --- !u!212 &1872902879
 SpriteRenderer:

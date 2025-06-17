@@ -7,7 +7,16 @@ public class ShapeEntity : MonoBehaviour
 {
     public ShapeEntityTemplate entity;
 
+    private Collider2D _collider;
+    private Rigidbody2D _rigidBody;
+
     private bool _isActive;
+
+    void Start()
+    {
+        _collider = this.GetComponent<Collider2D>();
+        _rigidBody = this.GetComponent<Rigidbody2D>();
+    }
 
     public void Init(ShapeEntityTemplate template)
     {
@@ -38,7 +47,45 @@ public class ShapeEntity : MonoBehaviour
     {
         if (_isActive)
         {
-            Destroy(this.gameObject);
+            if (GameManager.Instance.scoreCount < 7)
+            {
+                _collider.enabled = false;
+                _isActive = false;
+
+                Vector3 pos = GameManager.Instance.scorePlaces[GameManager.Instance.scoreCount].transform.position;
+
+                GameManager.Instance.ShapeClicked(this.gameObject);
+                StartCoroutine(FlyingCoroutine(pos));
+            }
         }
+    }
+
+    private IEnumerator FlyingCoroutine(Vector3 targetPos)
+    {
+        float lerpCounter = 0f;
+
+        Vector3 flyingDir = (Vector3)((Vector2)targetPos - _rigidBody.position);
+        flyingDir.Normalize();
+
+        while (_rigidBody.position.y < targetPos.y)
+        {
+            float currVecSpeed = Mathf.Lerp(-8f, 20f, lerpCounter);
+            float currRotSpeed = Mathf.Lerp(0f, 1020f, lerpCounter);
+            if (lerpCounter < 1f)
+            {
+                lerpCounter += Time.fixedDeltaTime;
+            }
+
+            _rigidBody.velocity = flyingDir * currVecSpeed;
+            _rigidBody.MoveRotation(_rigidBody.rotation + currRotSpeed * Time.fixedDeltaTime);
+
+            yield return new WaitForFixedUpdate();
+        }
+        // Destroy(this.gameObject);
+
+        this.transform.rotation = Quaternion.identity;
+        _rigidBody.simulated = false;
+
+        GameManager.Instance.AddToScore(this.gameObject);
     }
 }

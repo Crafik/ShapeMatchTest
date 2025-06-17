@@ -33,6 +33,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _fieldCounter;
     [SerializeField] private TextMeshProUGUI _bagCounter;
 
+    [Space(5)]
+    [SerializeField] private GameObject _canvas;
+
     [Space(10)]
     [Header(" Public data ")]
     public List<GameObject> ShapesList;
@@ -53,12 +56,12 @@ public class GameManager : MonoBehaviour
     // Lists of shapes
     private List<ShapeEntityTemplate> _bag;
     private List<GameObject> _inGame;
+    private List<GameObject> _inScore;
 
     private int _totalCount;
-    private int _fieldCount;
-    private int _scoreCount;
+    [HideInInspector] public int scoreCount;
 
-    private bool _isAssembling;
+    private bool _isActive;
 
 
     void Awake()
@@ -73,9 +76,12 @@ public class GameManager : MonoBehaviour
         }
 
         _input = new InputController();
-        _ui = new UIManager(_fieldCounter, _bagCounter);
+        _ui = new UIManager(_fieldCounter, _bagCounter, scorePlaces);
 
-        _isAssembling = false;
+        _isActive = false;
+        scoreCount = 0;
+
+        _inScore = new List<GameObject>();
     }
 
     void Start()
@@ -95,34 +101,31 @@ public class GameManager : MonoBehaviour
         }
         _bag = ShuffleList(_bag);
         _totalCount = _bag.Count;
-        _fieldCount = 0;
-        _ui.RefreshCounters(_fieldCount, _bag.Count);
+        _ui.RefreshCounters(_inGame.Count, _bag.Count);
 
         StartCoroutine(ShapesSpawning());
     }
 
     private IEnumerator ShapesSpawning()
     {
-        _isAssembling = true;
+        _isActive = true;
         _input.EnableTouch(false);
-        _fieldCount = 0;
-        while (_fieldCount < 84 & _fieldCount < _totalCount) // kinda magic number
+        while (_inGame.Count < 84 & _inGame.Count < _totalCount) // kinda magic number
         {
             GameObject s = Instantiate(ShapesList[(int)_bag[0].shape], _spawnPoints[Random.Range(0, _spawnPoints.Count)].transform.position, Quaternion.identity);
             _inGame.Add(s);
             s.GetComponent<ShapeEntity>().Init(_bag[0]);
             yield return new WaitForSeconds(0.25f);
-            _fieldCount += 1;
             _bag.RemoveAt(0);
-            _ui.RefreshCounters(_fieldCount, _bag.Count);
+            _ui.RefreshCounters(_inGame.Count, _bag.Count);
         }
         _input.EnableTouch(true);
-        _isAssembling = false;
+        _isActive = false;
     }
 
     public void RefreshField()
     {
-        if (!_isAssembling)
+        if (!_isActive)
         {
             while (_inGame.Count > 0)
             {
@@ -131,8 +134,7 @@ public class GameManager : MonoBehaviour
                 _inGame.RemoveAt(0);
             }
             _bag = ShuffleList(_bag);
-            _fieldCount = 0;
-            _ui.RefreshCounters(_fieldCount, _bag.Count);
+            _ui.RefreshCounters(_inGame.Count, _bag.Count);
             StartCoroutine(ShapesSpawning());
         }
     }
@@ -147,5 +149,42 @@ public class GameManager : MonoBehaviour
             list[j] = temp;
         }
         return list;
+    }
+
+    public void ShapeClicked(GameObject shape)
+    {
+        _inGame.Remove(shape);
+        scoreCount += 1;
+        _ui.RefreshCounters(_inGame.Count, _bag.Count);
+        shape.transform.SetParent(_canvas.transform);
+    }
+
+    public void AddToScore(GameObject shape)
+    {
+        int matchCounter = 0;
+        List<GameObject> matches = new List<GameObject>();
+        foreach (GameObject s in _inScore)
+        {
+            ShapeEntityTemplate sT = s.GetComponent<ShapeEntity>().entity;
+            ShapeEntityTemplate shapeT = shape.GetComponent<ShapeEntity>().entity;
+            if (sT.shape == shapeT.shape && sT.gem == shapeT.gem && sT.color == shapeT.color)
+            {
+                matchCounter += 1;
+                matches.Add(s);
+                if (matchCounter > 1) // 2 matches for 3 of the same
+                {
+                    matches.Add(shape);
+                    _inScore.Add(shape);
+                    foreach (GameObject match in matches)
+                    {
+                        _inScore.Remove(match);
+                        Destroy(match);
+                    }
+                    scoreCount -= 3;
+                    break;
+                }
+            }
+        }
+        _ui.AddToScoreBar(_inScore);
     }
 }
