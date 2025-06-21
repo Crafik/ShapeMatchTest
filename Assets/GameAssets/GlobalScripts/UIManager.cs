@@ -7,25 +7,27 @@ public class UIManager
 
     private TextMeshProUGUI _fieldCounter;
     private TextMeshProUGUI _bagCounter;
-    private GameObject _startButton;
-    private GameObject _mainLabel;
 
-    private Animator _buttonAnim;
-    private Animator _labelAnim;
-    private TextMeshProUGUI _labelText;
+    private Animator _startButtonAnim;
+    private Animator _mainLabelAnim;
+    private TextMeshProUGUI _mainLabelText;
 
-    private List<GameObject> _places;
+    public List<GameObject> places;
 
-    public UIManager(TextMeshProUGUI field, TextMeshProUGUI bag, GameObject startbutton, GameObject mainLabel, List<GameObject> places)
+    public UIManager(GameObject canvas)
     {
-        _fieldCounter = field;
-        _bagCounter = bag;
-        _startButton = startbutton;
-        _buttonAnim = _startButton.GetComponent<Animator>();
-        _mainLabel = mainLabel;
-        _labelAnim = _mainLabel.GetComponent<Animator>();
-        _labelText = _mainLabel.GetComponent<TextMeshProUGUI>();
-        _places = places;
+        places = new List<GameObject>();
+        Transform scorePanel = canvas.transform.GetChild(0);
+        for (int i = 0; i < 7; ++i)
+        {
+            places.Add(scorePanel.GetChild(i).gameObject);
+        }
+        _bagCounter = scorePanel.GetChild(scorePanel.childCount - 1).GetComponent<TextMeshProUGUI>();
+        _fieldCounter = scorePanel.GetChild(scorePanel.childCount - 2).GetComponent<TextMeshProUGUI>();
+
+        _startButtonAnim = canvas.transform.GetChild(1).GetComponent<Animator>();
+        _mainLabelAnim = canvas.transform.GetChild(2).GetComponent<Animator>();
+        _mainLabelText = canvas.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
 
         PlayButtonAnim(true);
         PlayLabelAnim(true);
@@ -35,11 +37,11 @@ public class UIManager
     {
         if (FadeIn)
         {
-            _buttonAnim.Play("FadeIn");
+            _startButtonAnim.Play("FadeIn");
         }
         else
         {
-            _buttonAnim.Play("FadeOut");
+            _startButtonAnim.Play("FadeOut");
         }
     }
 
@@ -47,17 +49,17 @@ public class UIManager
     {
         if (FadeIn)
         {
-            _labelAnim.Play("FadeIn");
+            _mainLabelAnim.Play("FadeIn");
         }
         else
         {
-            _labelAnim.Play("FadeOut");
+            _mainLabelAnim.Play("FadeOut");
         }
     }
 
     public void SetLabelText(string txt)
     {
-        _labelText.text = txt;
+        _mainLabelText.text = txt;
     }
 
     public void RefreshCounters(int field, int bag)
@@ -71,14 +73,14 @@ public class UIManager
         int i = 0;
         foreach (GameObject shape in shapes)
         {
-            shape.transform.position = _places[i].transform.position;
+            shape.transform.position = places[i].transform.position;
             shape.transform.localScale = Vector3.one * 160f;
-            _places[i].SetActive(false);
+            places[i].SetActive(false);
             i += 1;
         }
-        for (; i < _places.Count; ++i)
+        for (; i < places.Count; ++i)
         {
-            _places[i].SetActive(true);
+            places[i].SetActive(true);
         }
     }
 }

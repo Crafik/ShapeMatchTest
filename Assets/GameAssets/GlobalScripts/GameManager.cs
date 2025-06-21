@@ -30,13 +30,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<GameObject> _spawnPoints;
 
     [Space(5)]
-    [SerializeField] private TextMeshProUGUI _fieldCounter;
-    [SerializeField] private TextMeshProUGUI _bagCounter;
-
-    [Space(5)]
     [SerializeField] private GameObject _canvas;
-    [SerializeField] private GameObject _startButton;
-    [SerializeField] private GameObject _mainLabel;
 
     [Space(10)]
     [Header(" Public data ")]
@@ -48,12 +42,7 @@ public class GameManager : MonoBehaviour
     public Color inactiveColor;
     public Color activeColor;
 
-    [Space(5)]
-    public List<GameObject> scorePlaces;
-
-    [Space(10)]
-    [Header(" Variables ")]
-    [SerializeField] private float _float;
+    public List<GameObject> scorePlaces { get => _ui.places; }
 
     // Lists of shapes
     private List<ShapeEntityTemplate> _bag;
@@ -63,8 +52,8 @@ public class GameManager : MonoBehaviour
     private int _totalCount;
     [HideInInspector] public int scoreCount;
 
-    public bool isActive;
-    public bool isGameStarted;
+    [HideInInspector] public bool isActive;
+    [HideInInspector] public bool isGameStarted;
     private bool _isNotFirstTime;
 
 
@@ -81,7 +70,7 @@ public class GameManager : MonoBehaviour
         }
 
         _input = new InputController();
-        _ui = new UIManager(_fieldCounter, _bagCounter, _startButton, _mainLabel, scorePlaces);
+        _ui = new UIManager(_canvas);
 
         isActive = false;
         isGameStarted = false;
