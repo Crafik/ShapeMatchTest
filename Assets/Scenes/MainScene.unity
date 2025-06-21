@@ -1317,8 +1317,8 @@ RectTransform:
   - {fileID: 1864760193}
   - {fileID: 1783149681}
   - {fileID: 773705220}
-  - {fileID: 1599440673}
   - {fileID: 1576318650}
+  - {fileID: 1599440673}
   - {fileID: 40077223}
   m_Father: {fileID: 726013880}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1385,11 +1385,7 @@ MonoBehaviour:
   - {fileID: 343222403}
   - {fileID: 1583052365}
   - {fileID: 2081396001}
-  _fieldCounter: {fileID: 1599440674}
-  _bagCounter: {fileID: 40077224}
   _canvas: {fileID: 726013876}
-  _startButton: {fileID: 1831672341}
-  _mainLabel: {fileID: 1303317718}
   ShapesList:
   - {fileID: 7429916797415482449, guid: 85bf6c7a6412ac348943652c2baffc9e, type: 3}
   - {fileID: 3230175742071407619, guid: a450b1ad28a32c24092cfea550d85f71, type: 3}
@@ -1408,15 +1404,6 @@ MonoBehaviour:
   - {r: 1, g: 1, b: 1, a: 1}
   inactiveColor: {r: 0.4509804, g: 0.4509804, b: 0.4509804, a: 1}
   activeColor: {r: 1, g: 0.6136045, b: 0, a: 1}
-  scorePlaces:
-  - {fileID: 1038573712}
-  - {fileID: 1032982780}
-  - {fileID: 1352280715}
-  - {fileID: 279132900}
-  - {fileID: 1063776844}
-  - {fileID: 789077425}
-  - {fileID: 1864760192}
-  _float: 0
   scoreCount: 0
   isActive: 0
   isGameStarted: 0
