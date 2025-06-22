@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIManager
 {
@@ -14,6 +15,11 @@ public class UIManager
 
     public List<GameObject> places;
 
+    private TextMeshProUGUI _currentScore;
+
+    private List<GameObject> _refreshTokens;
+    private Button _refreshButton;
+
     public UIManager(GameObject canvas)
     {
         places = new List<GameObject>();
@@ -25,12 +31,44 @@ public class UIManager
         _bagCounter = scorePanel.GetChild(scorePanel.childCount - 1).GetComponent<TextMeshProUGUI>();
         _fieldCounter = scorePanel.GetChild(scorePanel.childCount - 2).GetComponent<TextMeshProUGUI>();
 
+        _currentScore = scorePanel.GetChild(7).GetChild(1).GetComponent<TextMeshProUGUI>();
+
+        _refreshTokens = new List<GameObject>();
+        Transform refreshPanel = scorePanel.GetChild(8);
+        for (int i = 0; i < 3; ++i)
+        {
+            _refreshTokens.Add(refreshPanel.GetChild(i).gameObject);
+        }
+
+        _refreshButton = scorePanel.GetChild(9).gameObject.GetComponent<Button>();
+
         _startButtonAnim = canvas.transform.GetChild(1).GetComponent<Animator>();
         _mainLabelAnim = canvas.transform.GetChild(2).GetComponent<Animator>();
         _mainLabelText = canvas.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
 
         PlayButtonAnim(true);
         PlayLabelAnim(true);
+    }
+
+    public void SetScorePoints(int score)
+    {
+        _currentScore.text = score.ToString("D7");
+    }
+
+    public void SetRefreshTokens(int count)
+    {
+        for (int i = 0; i < _refreshTokens.Count; ++i)
+        {
+            if (i < count)
+            {
+                _refreshTokens[i].SetActive(true);
+            }
+            else
+            {
+                _refreshTokens[i].SetActive(false);
+            }
+        }
+        _refreshButton.interactable = (count != 0);
     }
 
     public void PlayButtonAnim(bool FadeIn)

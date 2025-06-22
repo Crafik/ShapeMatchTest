@@ -55,6 +55,8 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public bool isActive;
     [HideInInspector] public bool isGameStarted;
     private bool _isNotFirstTime;
+    private int _scorepoints;
+    private int _refreshTokens;
 
 
     void Awake()
@@ -76,6 +78,8 @@ public class GameManager : MonoBehaviour
         isGameStarted = false;
         _isNotFirstTime = false;
         scoreCount = 0;
+        _refreshTokens = 3;
+        _scorepoints = 0;
 
         _inScore = new List<GameObject>();
     }
@@ -96,6 +100,8 @@ public class GameManager : MonoBehaviour
             }
             _ui.RefreshScoreBar(_inScore);
             scoreCount = 0;
+            _refreshTokens = 3;
+            _ui.SetRefreshTokens(_refreshTokens);
         }
         if (!isGameStarted)
         {
@@ -142,8 +148,10 @@ public class GameManager : MonoBehaviour
 
     public void RefreshField()
     {
-        if (isActive)
+        if (isActive && _refreshTokens > 0)
         {
+            _refreshTokens -= 1;
+            _ui.SetRefreshTokens(_refreshTokens);
             while (_inGame.Count > 0)
             {
                 _bag.Add(_inGame[0].GetComponent<ShapeEntity>().entity);
@@ -226,6 +234,8 @@ public class GameManager : MonoBehaviour
                 _inScore.RemoveAt(matches[i]);
                 scoreCount -= 1;
             }
+            _scorepoints += 300;
+            _ui.SetScorePoints(_scorepoints);
         }
         if (_inScore.Count == 0 && _totalCount == 0)
         {
