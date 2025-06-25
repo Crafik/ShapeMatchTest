@@ -58,6 +58,9 @@ public class GameManager : MonoBehaviour
     private int _scorepoints;
     private int _refreshTokens;
 
+    private Coroutine _comboCoroutine;
+    private int _comboCounter;
+
 
     void Awake()
     {
@@ -72,7 +75,7 @@ public class GameManager : MonoBehaviour
         }
 
         _input = new InputController();
-        _ui = new UIManager(_canvas);
+        _ui = new UIManager(_canvas.transform);
 
         isActive = false;
         isGameStarted = false;
@@ -102,6 +105,7 @@ public class GameManager : MonoBehaviour
             scoreCount = 0;
             _refreshTokens = 3;
             _ui.SetRefreshTokens(_refreshTokens);
+            _ui.SetComboActive(false);
         }
         if (!isGameStarted)
         {
@@ -123,10 +127,19 @@ public class GameManager : MonoBehaviour
             _totalCount = _bag.Count;
             _ui.RefreshCounters(_inGame.Count, _bag.Count);
 
-            StartCoroutine(ShapesSpawning());
+            StartShapeSpawning();
             isGameStarted = true;
             _isNotFirstTime = true;
         }
+    }
+
+    private void StartShapeSpawning()
+    {
+        if (_comboCoroutine != null)
+        {
+            StopCoroutine(_comboCoroutine);
+        }
+        StartCoroutine(ShapesSpawning());
     }
 
     private IEnumerator ShapesSpawning()
@@ -144,6 +157,10 @@ public class GameManager : MonoBehaviour
         }
         _input.EnableTouch(true);
         isActive = true;
+        if (_comboCounter > 0)
+        {
+            StartCoroutine(ScoreComboCoroutine());
+        }
     }
 
     public void RefreshField()
@@ -160,7 +177,7 @@ public class GameManager : MonoBehaviour
             }
             _bag = ShuffleList(_bag);
             _ui.RefreshCounters(_inGame.Count, _bag.Count);
-            StartCoroutine(ShapesSpawning());
+            StartShapeSpawning();
         }
     }
 
@@ -186,7 +203,7 @@ public class GameManager : MonoBehaviour
 
         if (_inGame.Count < 60 && _inGame.Count != _totalCount)
         {
-            StartCoroutine(ShapesSpawning());
+            StartShapeSpawning();
         }
     }
 
@@ -208,8 +225,11 @@ public class GameManager : MonoBehaviour
 
     private void FindMatches()
     {
+        // kinda bungled this one, but don't see much sense in breaking it up in pieces
+        // gonna comment instead :)
         List<int> matches = new List<int>();
 
+        // looking for matches with last added shape and counting hits
         ShapeEntityTemplate matchTo = _inScore[_inScore.Count - 1].GetComponent<ShapeEntity>().entity;
         for (int i = 0; i < _inScore.Count - 1; ++i)
         {
@@ -225,7 +245,9 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
-        matches.Add(_inScore.Count - 1);
+        matches.Add(_inScore.Count - 1); // adding last added to scorebar shape into matches
+
+        // check if enough matches and scoring if so
         if (matches.Count > 2)
         {
             for (int i = matches.Count - 1; i > -1; --i)
@@ -234,9 +256,21 @@ public class GameManager : MonoBehaviour
                 _inScore.RemoveAt(matches[i]);
                 scoreCount -= 1;
             }
-            _scorepoints += 300;
+
+            if (_comboCounter < 6)
+            {
+                _comboCounter += 1;
+            }
+            _scorepoints += 300 + ((_comboCounter - 1) * 150);
             _ui.SetScorePoints(_scorepoints);
+            if (_comboCoroutine != null)
+            {
+                StopCoroutine(_comboCoroutine);
+            }
+            _comboCoroutine = StartCoroutine(ScoreComboCoroutine());
         }
+
+        // end game check
         if (_inScore.Count == 0 && _totalCount == 0)
         {
             isActive = false;
@@ -245,5 +279,28 @@ public class GameManager : MonoBehaviour
             _ui.SetLabelText("Victory!");
             _ui.PlayButtonAnim(true);
         }
+    }
+
+    private IEnumerator ScoreComboCoroutine()
+    {
+        if (_comboCounter > 1)
+        {
+            _ui.SetComboActive(true);
+            _ui.SetComboMeter(_comboCounter);
+            float comboTimer = 3.5f;
+            while (comboTimer > 0f)
+            {
+                _ui.SetComboProgress(comboTimer / 3.5f);
+                comboTimer -= Time.deltaTime;
+                yield return null;
+            }
+        }
+        else
+        {
+            yield return new WaitForSeconds(2f);
+        }
+
+        _ui.SetComboActive(false);
+        _comboCounter = 0;
     }
 }

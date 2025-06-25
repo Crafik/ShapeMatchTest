@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,10 +21,14 @@ public class UIManager
     private List<GameObject> _refreshTokens;
     private Button _refreshButton;
 
-    public UIManager(GameObject canvas)
+    private GameObject _comboPanel;
+    private Image _comboProgressBar;
+    private TextMeshProUGUI _comboMeter;
+
+    public UIManager(Transform canvas)
     {
         places = new List<GameObject>();
-        Transform scorePanel = canvas.transform.GetChild(0);
+        Transform scorePanel = canvas.GetChild(0);
         for (int i = 0; i < 7; ++i)
         {
             places.Add(scorePanel.GetChild(i).gameObject);
@@ -42,9 +47,14 @@ public class UIManager
 
         _refreshButton = scorePanel.GetChild(9).gameObject.GetComponent<Button>();
 
-        _startButtonAnim = canvas.transform.GetChild(1).GetComponent<Animator>();
-        _mainLabelAnim = canvas.transform.GetChild(2).GetComponent<Animator>();
-        _mainLabelText = canvas.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        _startButtonAnim = canvas.GetChild(1).GetComponent<Animator>();
+        _mainLabelAnim = canvas.GetChild(2).GetComponent<Animator>();
+        _mainLabelText = canvas.GetChild(2).GetComponent<TextMeshProUGUI>();
+
+        _comboPanel = canvas.GetChild(3).gameObject;
+        _comboProgressBar = _comboPanel.transform.GetChild(0).GetChild(0).GetComponent<Image>();
+        _comboMeter = _comboPanel.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+        _comboPanel.SetActive(false);
 
         PlayButtonAnim(true);
         PlayLabelAnim(true);
@@ -119,6 +129,43 @@ public class UIManager
         for (; i < places.Count; ++i)
         {
             places[i].SetActive(true);
+        }
+    }
+
+    public void SetComboActive(bool active)
+    {
+        _comboPanel.SetActive(active);
+    }
+
+    public void SetComboProgress(float amount)
+    {
+        if (_comboPanel.activeSelf)
+        {
+            _comboProgressBar.fillAmount = amount;
+        }
+        else
+        {
+            Debug.LogError("Combo is inactive. SetComboProgress() ignored.");
+        }
+    }
+
+    public void SetComboMeter(int meter)
+    {
+        if (_comboPanel.activeSelf)
+        {
+            if (meter < 7)
+            {
+                _comboMeter.text = "x" + meter.ToString();
+            }
+            else
+            {
+                Debug.LogError("Combo exceeds it's limits. Setting combo meter at \'N\'");
+                _comboMeter.text = "xN";
+            }
+        }
+        else
+        {
+            Debug.LogError("Combo is inactive. SetComboMeter() ignored.");
         }
     }
 }
